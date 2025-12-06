@@ -1,13 +1,5 @@
 #+TITLE: Caylix
 #+DESCRIPTION: Lightweight C library for math
-#+begin_src text
-  ____            _ _
- / ___|__ _ _   _| (_)_  __
-| |   / _` | | | | | \ \/ /
-| |__| (_| | |_| | | |>  <
- \____\__,_|\__, |_|_/_/\_\
-            |___/
-#+end_src
 * Introduction
   Caylix is a header-only C library designed to provide mathematical utilities in a simple, portable way
 * License
