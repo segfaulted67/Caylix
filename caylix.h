@@ -3,7 +3,7 @@
 
 #ifdef __cplusplus
 extern "C" {
-#endif
+#endif // __cplusplus
 
 /* Included standard libraries */
 #include <stdio.h>
@@ -74,17 +74,17 @@ extern "C" {
 
 /* Half of PI */
 #ifndef CX_PI_HALF
-#   define CX_PI_HALF 1.5707963267948966f
+#   define CX_PI_HALF 1.5707963267948966
 #endif
 
 /* Square of PI */
 #ifndef CX_PI_SQUARED
-#   define CX_PI_SQUARED 9.8696044010893586f
+#   define CX_PI_SQUARED 9.8696044010893586
 #endif
 
 /* Two PI(2 * PI) */
-#ifndef CX_PI_TAU
-#   define CX_TAU 6.2831853071795864769252867665590057683943387987502116419498891846156328125724179972560696506842341359f
+#ifndef CX_TAU
+#   define CX_TAU 6.2831853071795864769252867665590057683943387987502116419498891846156328125724179972560696506842341359
 #endif
 
 /* Value of e(euler's number) */
@@ -98,19 +98,19 @@ extern "C" {
 
 /* Radians per Degree = PI/180 */
 #ifndef CX_RAD_PER_DEG
-#   define CX_RAD_PER_DEG 0.0174532925199432957692369076848861f
+#   define CX_RAD_PER_DEG 0.0174532925199432957692369076848861
 #endif
 
 /* Degree per Radian = 180/PI */
 #ifndef CX_DEG_PER_RAD
-#   define CX_DEG_PER_RAD 57.2957795130823208767981548141052f
+#   define CX_DEG_PER_RAD 57.2957795130823208767981548141052
 #endif
 
 /* Default initial capacity for Dynamic Array */
 #define CX_DA_INIT_CAP 8
 
 /* A macro for absolute value. eg: CX_ABS(69.0) --> 69.0 , CX_ABS(-69.0) -> 69.0 */
-#define CX_ABS(x)   _Generic((x), float: fabsf, double: fabs, default: fabs)(x)
+#define CX_ABS(x)  ((x) < 0) ? -(x) : (x)
 /* A macro for square root*/
 #define CX_SQRT(x)  _Generic((x), float: sqrtf, double: sqrt, default: sqrt)(x)
 /* A macro for sin */
@@ -120,14 +120,11 @@ extern "C" {
 /* A macro for tan */
 #define CX_TAN(x)   _Generic((x), float: tanf, double: tan, default: tan)(x)
 /* A macro for cot */
-#define CX_COT(x) \
-  ((CX_TAN(x) <= CX_EPSILON) ? INFINITY : 1.0 / CX_TAN(x))
+#define CX_COT(x)  (1.0 / CX_TAN(x))
 /* A macro for sec */
-#define CX_SEC(x) \
-  ((CX_COS(x) <= CX_EPSILON) ? INFINITY : 1.0 / CX_COS(x))
+#define CX_SEC(x)  (1.0 / CX_COS(x))
 /* A macro for cosec */
-#define CX_CSC(x) \
-  ((CX_SIN(x) <= CX_EPSILON) ? INFINITY : 1.0 / CX_SIN(x))
+#define CX_CSC(x)  (1.0 / CX_SIN(x))
 
 /* A macro for sin inverse or asin */
 #define CX_ASIN(x)  _Generic((x), float: asinf, double: asin, default: asin)(x)
@@ -195,7 +192,7 @@ extern "C" {
 
 /* Macro returns the length of an array */
 #define CX_ARR_LEN(arr)   (sizeof(arr)/sizeof(arr[0]))
-/* Macro returns the number of arguments. eg: CX_NUM_ARGS(int/* type */, 1, 0, 6, 7, 9, 3) -- returns 6 */
+/* Macro returns the number of arguments. eg: CX_NUM_ARGS(int, 1, 0, 6, 7, 9, 3) -- returns 6 */
 #define CX_NUM_ARGS(type, ...)   sizeof((type []){ __VA_ARGS__ }) / sizeof(type)
 
 /* Macros returns the min/max between two numbers */
@@ -205,6 +202,9 @@ extern "C" {
 /* Degree to Radian/Radian to Degree Conversion */
 #define CX_DEG_TO_RAD(x)  ((x) * CX_DEG_PER_RAD)
 #define CX_RAD_TO_DEG(x)  ((x) * CX_RAD_PER_DEG)
+
+/* A Macro returns the square of number */
+#define CX_SQUARE(x)  ((x) * (x))
 
 /* CX_RANDOM: Random number generator between two numbers [min, max](int) */
 #define CX_RANDOM(min, max)   \
@@ -218,16 +218,138 @@ extern "C" {
 /* Example:                                   */
 /* CX_FLOAT a = 6, b = 7;                     */
 /* cx_swap(&a, &b); --> a = 7, b = 6          */
-static CX_API_INLINE void cx_swap(CX_FLOAT *x, CX_FLOAT *y) {
+static CX_API_INLINE void cx_swap(CX_FLOAT *x, CX_FLOAT *y)
+{
   CX_FLOAT t = *x;
   *x = *y;
   *y = t;
 }
 
+
+/* ------------------------------------------------------------------------------------------------------------ */
+/* forward decleration ---------------------------------------------------------------------------------------- */
+struct cx_vec2;
+struct cx_vec3;
+struct cx_vec4;
+struct cx_mat2;
+struct cx_mat3;
+struct cx_mat4;
+struct cx_quaternion;
+
+#define CX_REF_VEC2_ZERO              0
+#define CX_REF_VEC2_UNIT_X            1
+#define CX_REF_VEC2_UNIT_Y            2
+#define CX_REF_VEC2_UNIT_X_NEGATIVE   3
+#define CX_REF_VEC2_UNIT_Y_NEGATIVE   4
+#define CX_REF_VEC2_ONE               5
+
+CX_API const struct cx_vec2 *cx_get_reference_vec2(int id);
+
+#define CX_REF_VEC3_ZERO              0
+#define CX_REF_VEC3_UNIT_X            1
+#define CX_REF_VEC3_UNIT_Y            2
+#define CX_REF_VEC3_UNIT_Z            3
+#define CX_REF_VEC3_UNIT_X_NEGATIVE   4
+#define CX_REF_VEC3_UNIT_Y_NEGATIVE   5
+#define CX_REF_VEC3_UNIT_Z_NEGATIVE   6
+#define CX_REF_VEC3_ONE               7
+
+CX_API const struct cx_vec3 *cx_get_reference_vec3(int id);
+
+#define CX_REF_VEC4_ZERO              0
+#define CX_REF_VEC4_UNIT_X            1
+#define CX_REF_VEC4_UNIT_Y            2
+#define CX_REF_VEC4_UNIT_Z            3
+#define CX_REF_VEC4_UNIT_X_NEGATIVE   4
+#define CX_REF_VEC4_UNIT_Y_NEGATIVE   5
+#define CX_REF_VEC4_UNIT_Z_NEGATIVE   6
+#define CX_REF_VEC4_ONE               7
+
+CX_API const struct cx_vec4 *cx_get_reference_vec4(int id);
+/* ------------------------------------------------------------------------------------------------------------ */
+/* reference_vec2---------------------------------------------------------------------------------------------- */
+/* {0, 0}                                                                                                       */
+#define CX_VEC2_ZERO              cx_get_reference_vec2(CX_REF_VEC2_ZERO)
+/* {1, 0}                                                                                                       */
+#define CX_VEC2_UNIT_X            cx_get_reference_vec2(CX_REF_VEC2_UNIT_X)
+/* {0, 1}                                                                                                       */
+#define CX_VEC2_UNIT_Y            cx_get_reference_vec2(CX_REF_VEC2_UNIT_Y)
+/* {-1, 0}                                                                                                      */
+#define CX_VEC2_UNIT_X_NEGATIVE   cx_get_reference_vec2(CX_REF_VEC2_UNIT_X_NEGATIVE)
+/* {0, -1}                                                                                                      */
+#define CX_VEC2_UNIT_Y_NEGATIVE   cx_get_reference_vec2(CX_REF_VEC2_UNIT_Y_NEGATIVE)
+/* {1, 1}                                                                                                       */
+#define CX_VEC2_ONE               cx_get_reference_vec2(CX_REF_VEC2_ONE)
+
+/* ------------------------------------------------------------------------------------------------------------ */
+/* reference_vec3---------------------------------------------------------------------------------------------- */
+/* {0, 0, 0}                                                                                                    */
+#define CX_VEC3_ZERO              cx_get_reference_vec3(CX_REF_VEC3_ZERO)
+/* {1, 0, 0}                                                                                                    */
+#define CX_VEC3_UNIT_X            cx_get_reference_vec3(CX_REF_VEC3_UNIT_X)
+/* {0, 1, 0}                                                                                                    */
+#define CX_VEC3_UNIT_Y            cx_get_reference_vec3(CX_REF_VEC3_UNIT_Y)
+/* {0, 0, 1}                                                                                                    */
+#define CX_VEC3_UNIT_Z            cx_get_reference_vec3(CX_REF_VEC3_UNIT_Z)
+/* {-1, 0, 0}                                                                                                   */
+#define CX_VEC3_UNIT_X_NEGATIVE   cx_get_reference_vec3(CX_REF_VEC3_UNIT_X_NEGATIVE)
+/* {0, -1, 0}                                                                                                   */
+#define CX_VEC3_UNIT_Y_NEGATIVE   cx_get_reference_vec3(CX_REF_VEC3_UNIT_Y_NEGATIVE)
+/* {0, 0, -1}                                                                                                   */
+#define CX_VEC3_UNIT_Z_NEGATIVE   cx_get_reference_vec3(CX_REF_VEC3_UNIT_Z_NEGATIVE)
+/* {1, 1, 1}                                                                                                    */
+#define CX_VEC3_ONE               cx_get_reference_vec3(CX_REF_VEC3_ONE)
+
+/* ------------------------------------------------------------------------------------------------------------ */
+/* cx_vec2 functions ------------------------------------------------------------------------------------------ */
+struct cx_vec2 {
+  union {
+    CX_FLOAT v[2];
+    struct {
+      CX_FLOAT x, y;
+    };
+  };
+} cx_vec2;
+
+CX_API struct cx_vec2 *cx_vec2_zero(struct cx_vec2 *u);                                               /* Returns zero vec2 */
+CX_API struct cx_vec2 *cx_vec2_set(struct cx_vec2 *u, CX_FLOAT x, CX_FLOAT y);                        /* Set a vec2 with x, y */
+CX_API struct cx_vec2 *cx_vec2_negate(struct cx_vec2 *u);                                             /* Returns the negation of a vec2 */
+CX_API struct cx_vec2 *cx_vec2_add(struct cx_vec2 *u, struct cx_vec2 *v);                             /* Returns the addition of two vec2 */
+CX_API struct cx_vec2 *cx_vec2_subtract(struct cx_vec2 *u, struct cx_vec2 *v);                        /* Returns the subtraction of two vec2 */
+CX_API struct cx_vec2 *cx_vec2_scalar_multiply(struct cx_vec2 *u, CX_FLOAT f);                        /* Returns the scalar multiplication of a vec2. eg: u = <1.0f, 3.0f> and f = 3.0f => <3.0f, 9.0f> */
+CX_API struct cx_vec2 *cx_vec2_dot_product(struct cx_vec2 *u, struct cx_vec2 *v);                     /* Returns the dot product b/w two vec2 */
+CX_API struct cx_vec2 *cx_vec2_cross_product(struct cx_vec2 *u, struct cx_vec2 *v);                   /* Returns the cross product b/w two vec2 */
+CX_API struct cx_vec2 *cx_vec2_normalize(struct cx_vec2 *u);                                          /* Returns the norm of a vec2 */
+CX_API struct cx_vec2 *cx_vec2_magnitude(struct cx_vec2 *u);                                          /* Returns the magnitude of a vec2 */
+
+
+static struct cx_vec2 _cx_vec2_zero             = { { { 0.0f, 0.0f } } };
+static struct cx_vec2 _cx_vec2_unit_x           = { { { 1.0f, 0.0f } } };
+static struct cx_vec2 _cx_vec2_unit_y           = { { { 0.0f, 1.0f } } };
+static struct cx_vec2 _cx_vec2_unit_x_negative  = { { { -1.0f, 0.0f } } };
+static struct cx_vec2 _cx_vec2_unit_y_negative  = { { { 0.0f, -1.0f } } };
+static struct cx_vec2 _cx_vec2_one              = { { { 1.0f, 1.0f } } };
+
+CX_API const struct cx_vec2 *cx_get_reference_vec2(int id)
+{
+  switch(id) {
+    case CX_REF_VEC2_ZERO:                return &_cx_vec2_zero;
+    case CX_REF_VEC2_ONE:                 return &_cx_vec2_one;
+    case CX_REF_VEC2_UNIT_X:              return &_cx_vec2_unit_x;
+    case CX_REF_VEC2_UNIT_Y:              return &_cx_vec2_unit_y;
+    case CX_REF_VEC2_UNIT_X_NEGATIVE:     return &_cx_vec2_unit_x_negative;
+    case CX_REF_VEC2_UNIT_Y_NEGATIVE:     return &_cx_vec2_unit_y_negative;
+    default:
+      return &_cx_vec2_zero;
+  }
+}
+
+
+
 #endif // CX_IMPLEMENTATION
 
 #ifdef __cplusplus
 }
-#endif
+#endif // __cplusplus
 
 #endif // CAYLIX_H
