@@ -110,7 +110,7 @@ extern "C" {
 #define CX_DA_INIT_CAP 8
 
 /* A macro for absolute value. eg: CX_ABS(69.0) --> 69.0 , CX_ABS(-69.0) -> 69.0 */
-#define CX_ABS(x)  ((x) < 0) ? -(x) : (x)
+#define CX_ABS(x)  (((x) < 0) ? -(x) : (x))
 /* A macro for square root*/
 #define CX_SQRT(x)  _Generic((x), float: sqrtf, double: sqrt, default: sqrt)(x)
 /* A macro for sin */
@@ -136,7 +136,7 @@ extern "C" {
 /* Safely divides x by y; returns INFINITY if y == 0 */
 /* Example: CX_SAFE_DIVIDE(5.0, 0.0); --> inf        */
 /*          CX_SAFE_DIVIDE(5.0, 5.0); --> 1.0        */
-#define CX_SAFE_DIVIDE(x, y)  (((y) == 0) ? INFINITY : (x) / (y))
+#define CX_SAFE_DIVIDE(x, y)  (((y) == 0) ? (((x) > 0) ? INFINITY : -INFINITY) : (x) / (y))
 
 /* typecast inline for different compilers */
 #ifndef CX_API_INLINE
@@ -204,7 +204,7 @@ extern "C" {
 #define CX_RAD_TO_DEG(x)  ((x) * CX_RAD_PER_DEG)
 
 /* A Macro returns the square of number */
-#define CX_SQUARE(x)  ((x) * (x))
+#define CX_SQ(x)  ((x) * (x))
 
 /* CX_RANDOM: Random number generator between two numbers [min, max](int) */
 #define CX_RANDOM(min, max)   \
@@ -304,24 +304,24 @@ CX_API const struct cx_vec4 *cx_get_reference_vec4(int id);
 /* cx_vec2 functions ------------------------------------------------------------------------------------------ */
 struct cx_vec2 {
   union {
-    CX_FLOAT v[2];
+    CX_FLOAT vec[2];
     struct {
       CX_FLOAT x, y;
     };
   };
-} cx_vec2;
+};
 
-CX_API struct cx_vec2 *cx_vec2_zero(struct cx_vec2 *u);                                               /* Returns zero vec2 */
-CX_API struct cx_vec2 *cx_vec2_set(struct cx_vec2 *u, CX_FLOAT x, CX_FLOAT y);                        /* Set a vec2 with x, y */
-CX_API struct cx_vec2 *cx_vec2_negate(struct cx_vec2 *u);                                             /* Returns the negation of a vec2 */
-CX_API struct cx_vec2 *cx_vec2_add(struct cx_vec2 *u, struct cx_vec2 *v);                             /* Returns the addition of two vec2 */
-CX_API struct cx_vec2 *cx_vec2_subtract(struct cx_vec2 *u, struct cx_vec2 *v);                        /* Returns the subtraction of two vec2 */
-CX_API struct cx_vec2 *cx_vec2_scalar_multiply(struct cx_vec2 *u, CX_FLOAT f);                        /* Returns the scalar multiplication of a vec2. eg: u = <1.0f, 3.0f> and f = 3.0f => <3.0f, 9.0f> */
-CX_API struct cx_vec2 *cx_vec2_dot_product(struct cx_vec2 *u, struct cx_vec2 *v);                     /* Returns the dot product b/w two vec2 */
-CX_API struct cx_vec2 *cx_vec2_cross_product(struct cx_vec2 *u, struct cx_vec2 *v);                   /* Returns the cross product b/w two vec2 */
-CX_API struct cx_vec2 *cx_vec2_normalize(struct cx_vec2 *u);                                          /* Returns the norm of a vec2 */
-CX_API struct cx_vec2 *cx_vec2_magnitude(struct cx_vec2 *u);                                          /* Returns the magnitude of a vec2 */
-
+CX_API CX_API_INLINE struct cx_vec2 *cx_vec2_zero(struct cx_vec2 *u);                                               /* Returns zero vec2 */
+CX_API CX_API_INLINE struct cx_vec2 *cx_vec2_set(struct cx_vec2 *u, CX_FLOAT x, CX_FLOAT y);                        /* Set a vec2 with x, y */
+CX_API CX_API_INLINE struct cx_vec2 *cx_vec2_negate(struct cx_vec2 *u);                                             /* Returns the negation of a vec2 */
+CX_API CX_API_INLINE struct cx_vec2 cx_vec2_add(const struct cx_vec2 *u, const struct cx_vec2 *v);                  /* Returns the addition of two vec2 */
+CX_API CX_API_INLINE struct cx_vec2 cx_vec2_subtract(const struct cx_vec2 *u, const struct cx_vec2 *v);             /* Returns the subtraction of two vec2 */
+CX_API CX_API_INLINE struct cx_vec2 cx_vec2_scalar_multiplyf(const struct cx_vec2 *u, CX_FLOAT f);                  /* Returns the scalar multiplication of a vec2. eg: u = <1.0f, 3.0f> and f = 3.0f => <3.0f, 9.0f> */
+CX_API CX_API_INLINE CX_FLOAT cx_vec2_dot_product(const struct cx_vec2 *u, const struct cx_vec2 *v);                /* Returns the dot product b/w two vec2 */
+CX_API CX_API_INLINE CX_FLOAT cx_vec2_cross_product(const struct cx_vec2 *u, const struct cx_vec2 *v);              /* Returns the cross product b/w two vec2 */
+CX_API CX_API_INLINE struct cx_vec2 cx_vec2_normalize(const struct cx_vec2 *u);                                     /* Returns the norm of a vec2 */
+CX_API CX_API_INLINE CX_FLOAT cx_vec2_magnitude(const struct cx_vec2 *u);                                           /* Returns the magnitude of a vec2 */
+CX_API CX_API_INLINE void cx_vec2_print(const struct cx_vec2 *u);                                                   /* Print vec2 */
 
 static struct cx_vec2 _cx_vec2_zero             = { { { 0.0f, 0.0f } } };
 static struct cx_vec2 _cx_vec2_unit_x           = { { { 1.0f, 0.0f } } };
@@ -344,6 +344,69 @@ CX_API const struct cx_vec2 *cx_get_reference_vec2(int id)
   }
 }
 
+CX_API CX_API_INLINE struct cx_vec2 *cx_vec2_set(struct cx_vec2 *u, CX_FLOAT x, CX_FLOAT y)
+{
+  u->x = x;
+  u->y = y;
+  return u;
+}
+CX_API CX_API_INLINE struct cx_vec2 *cx_vec2_zero(struct cx_vec2 *u)
+{
+  return cx_vec2_set(u, 0.0f, 0.0f);
+}
+CX_API CX_API_INLINE struct cx_vec2 *cx_vec2_negate(struct cx_vec2 *u)
+{
+  return cx_vec2_set(u, -u->x, -u->y);
+}
+CX_API CX_API_INLINE struct cx_vec2 cx_vec2_add(const struct cx_vec2 *u, const struct cx_vec2 *v)
+{
+  return (struct cx_vec2) {   .x = u->x + v->x,
+                              .y = u->y + v->y
+  };
+}
+
+CX_API CX_API_INLINE struct cx_vec2 cx_vec2_subtract(const struct cx_vec2 *u, const struct cx_vec2 *v)
+{
+  return (struct cx_vec2) {   .x = u->x - v->x,
+                              .y = u->y - v->y
+  };
+}
+
+CX_API CX_API_INLINE struct cx_vec2 cx_vec2_scalar_multiplyf(const struct cx_vec2 *u, CX_FLOAT f)
+{
+  return (struct cx_vec2) {   .x = f * u->x,
+                              .y = f * u->y
+  };
+}
+
+CX_API CX_API_INLINE CX_FLOAT cx_vec2_dot_product(const struct cx_vec2 *u, const struct cx_vec2 *v)
+{
+  return (u->x * v->x + u->y * v->y);
+}
+
+CX_API CX_API_INLINE CX_FLOAT cx_vec2_cross_product(const struct cx_vec2 *u, const struct cx_vec2 *v)
+{
+  return (u->x * v->y - u->y * v->x);
+}
+
+CX_API CX_API_INLINE struct cx_vec2 cx_vec2_normalize(const struct cx_vec2 *u)
+{
+  CX_FLOAT mag = cx_vec2_magnitude(u);
+  CX_FLOAT mag_inv = 1 / mag;
+  return (struct cx_vec2) {   .x = u->x * mag_inv,
+                              .y = u->y * mag_inv
+  };
+}
+
+CX_API CX_API_INLINE CX_FLOAT cx_vec2_magnitude(const struct cx_vec2 *u)
+{
+  return (CX_SQRT(CX_SQ(u->x) + CX_SQ(u->y)));
+}
+
+CX_API CX_API_INLINE void cx_vec2_print(const struct cx_vec2 *u)
+{
+  CX_PRINTLN("vec2: (x: %.2f,y: %.2f)", u->x, u->y);
+}
 
 
 #endif // CX_IMPLEMENTATION
