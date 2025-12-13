@@ -3,7 +3,7 @@
 
 #ifdef __cplusplus
 extern "C" {
-#endif // __cplusplus
+#endif /* __cplusplus */
 
 /* Included standard libraries */
 #include <stdio.h>
@@ -34,8 +34,14 @@ extern "C" {
 #   endif
 #endif
 
-/* typecast char * /const char * as CX_STR/CX_CONST_STR */
-#define CX_STR      char *
+/* typecast CX_FLOAT complex as CX_COMPLEX */
+#ifndef CX_COMPLEX
+#   include <complex.h>
+#   define CX_COMPLEX CX_FLOAT complex
+#endif
+
+/* typecast char and const char * as CX_STR and CX_CONST_STR */
+#define CX_STR          char *
 #define CX_CONST_STR    const char *
 
 /* Optionally Enable ANSI Colors for Log */
@@ -111,6 +117,8 @@ extern "C" {
 
 /* A macro for absolute value. eg: CX_ABS(69.0) --> 69.0 , CX_ABS(-69.0) -> 69.0 */
 #define CX_ABS(x)  (((x) < 0) ? -(x) : (x))
+/* A macro for complex absolute values */
+#define CX_CABS(x)  _Generic((x), float: cabsf, double: cabs, default: cabs)(x)
 /* A macro for square root*/
 #define CX_SQRT(x)  _Generic((x), float: sqrtf, double: sqrt, default: sqrt)(x)
 /* A macro for sin */
@@ -227,7 +235,7 @@ static CX_API_INLINE void cx_swap(CX_FLOAT *x, CX_FLOAT *y)
   *y = t;
 }
 
-
+// #ifdef CX_VECTOR_IMPLEMENT
 /* ------------------------------------------------------------------------------------------------------------ */
 /* forward decleration ---------------------------------------------------------------------------------------- */
 struct cx_vec2;
@@ -452,7 +460,9 @@ CX_API CX_API_INLINE struct cx_vec3 *cx_vec3_set(struct cx_vec3 *u, CX_FLOAT x, 
 CX_API CX_API_INLINE struct cx_vec3 *cx_vec3_set_random(struct cx_vec3 *u);                                         /* Set vec3 with random vaules */
 CX_API CX_API_INLINE struct cx_vec3 *cx_vec3_negate(struct cx_vec3 *u);                                             /* Returns the negation of a vec3 */
 CX_API CX_API_INLINE struct cx_vec3 cx_vec3_add(const struct cx_vec3 *u, const struct cx_vec3 *v);                  /* Returns the addition of two vec3 */
+CX_API CX_API_INLINE struct cx_vec3 cx_vec3_addf(const struct cx_vec3 *u, const CX_FLOAT fT);                       /* Returns the addition of a vec3 with a scalar eg. cx_vec3 u = <9.0f, 10.0f, 0.5f>, fT = 10, -> <19.0f, 20.0f, 10.5f> */
 CX_API CX_API_INLINE struct cx_vec3 cx_vec3_subtract(const struct cx_vec3 *u, const struct cx_vec3 *v);             /* Returns the subtraction of two vec3 */
+CX_API CX_API_INLINE struct cx_vec3 cx_vec3_subtractf(const struct cx_vec3 *u, const CX_FLOAT fT);                  /* Returns the subtraction of a vec3 with a scalar eg. cx_vec3 u = <9.0f, 10.0f, 0.5f>, fT = 10, -> <19.0f, 20.0f, 10.5f> */
 CX_API CX_API_INLINE struct cx_vec3 cx_vec3_scalar_multiplyf(const struct cx_vec3 *u, const CX_FLOAT fT);           /* Returns the scalar multiplication of a vec3. eg: u = <1.0f, 3.0f, 0.5f> and f = 3.0f => <3.0f, 9.0f, 1.5f> */
 CX_API CX_API_INLINE CX_FLOAT cx_vec3_dot_product(const struct cx_vec3 *u, const struct cx_vec3 *v);                /* Returns the dot product b/w two vec3 */
 CX_API CX_API_INLINE struct cx_vec3 cx_vec3_cross_product(const struct cx_vec3 *u, const struct cx_vec3 *v);        /* Returns the cross product b/w two vec3 */
@@ -492,6 +502,7 @@ CX_API CX_API_INLINE struct cx_vec3 *cx_vec3_zero(struct cx_vec3 *u)
   u->z = 0;
   return u;
 }
+
 CX_API CX_API_INLINE struct cx_vec3 *cx_vec3_set(struct cx_vec3 *u, CX_FLOAT x, CX_FLOAT y, CX_FLOAT z)
 {
   u->x = x;
@@ -515,6 +526,7 @@ CX_API CX_API_INLINE struct cx_vec3 *cx_vec3_negate(struct cx_vec3 *u)
   u->z = -u->z;
   return u;
 }
+
 CX_API CX_API_INLINE struct cx_vec3 cx_vec3_add(const struct cx_vec3 *u, const struct cx_vec3 *v)
 {
   return (struct cx_vec3) {   .x = u->x + v->x,
@@ -522,6 +534,15 @@ CX_API CX_API_INLINE struct cx_vec3 cx_vec3_add(const struct cx_vec3 *u, const s
                               .z = u->z + v->z
   };
 }
+
+CX_API CX_API_INLINE struct cx_vec3 cx_vec3_addf(const struct cx_vec3 *u, const CX_FLOAT fT)
+{
+  return (struct cx_vec3) {   .x = u->x + fT,
+                              .y = u->y + fT,
+                              .z = u->z + fT
+  };
+}
+
 CX_API CX_API_INLINE struct cx_vec3 cx_vec3_subtract(const struct cx_vec3 *u, const struct cx_vec3 *v)
 {
   return (struct cx_vec3) {   .x = u->x - v->x,
@@ -529,6 +550,15 @@ CX_API CX_API_INLINE struct cx_vec3 cx_vec3_subtract(const struct cx_vec3 *u, co
                               .z = u->z - v->z
   };
 }
+
+CX_API CX_API_INLINE struct cx_vec3 cx_vec3_subtractf(const struct cx_vec3 *u, const CX_FLOAT fT)
+{
+  return (struct cx_vec3) {   .x = u->x - fT,
+                              .y = u->y - fT,
+                              .z = u->z - fT
+  };
+}
+
 CX_API CX_API_INLINE struct cx_vec3 cx_vec3_scalar_multiplyf(const struct cx_vec3 *u, const CX_FLOAT fT)
 {
   return (struct cx_vec3) {   .x = fT * u->x,
@@ -536,10 +566,12 @@ CX_API CX_API_INLINE struct cx_vec3 cx_vec3_scalar_multiplyf(const struct cx_vec
                               .z = fT * u->z
   };
 }
+
 CX_API CX_API_INLINE CX_FLOAT cx_vec3_dot_product(const struct cx_vec3 *u, const struct cx_vec3 *v)
 {
   return (u->x * v->x + u->y * v->y + u->z * v->z);
 }
+
 CX_API CX_API_INLINE struct cx_vec3 cx_vec3_cross_product(const struct cx_vec3 *u, const struct cx_vec3 *v)
 {
   return (struct cx_vec3) {   .x = u->y * v->z - u->z * v->y,
@@ -547,6 +579,7 @@ CX_API CX_API_INLINE struct cx_vec3 cx_vec3_cross_product(const struct cx_vec3 *
                               .z = u->x * v->y - u->y * v->x,
   };
 }
+
 CX_API CX_API_INLINE struct cx_vec3 cx_vec3_normalize(const struct cx_vec3 *u)
 {
   CX_FLOAT mag = cx_vec3_magnitude(u);
@@ -556,19 +589,54 @@ CX_API CX_API_INLINE struct cx_vec3 cx_vec3_normalize(const struct cx_vec3 *u)
                               .z = mag_inv * u->z
   };
 }
+
 CX_API CX_API_INLINE CX_FLOAT cx_vec3_magnitude(const struct cx_vec3 *u)
 {
   return CX_SQRT(CX_SQ(u->x) + CX_SQ(u->y) + CX_SQ(u->z));
 }
+
 CX_API CX_API_INLINE void cx_vec3_print(const struct cx_vec3 *u)
 {
   CX_PRINTLN("vec3: (x: %.2f, y: %.2f, z: %.2f)", u->x, u->y, u->z);
 }
 
-#endif // CX_IMPLEMENTATION
+
+CX_API void cx_dft(CX_COMPLEX in[], CX_COMPLEX out[], int N)
+{
+  for(int k = 0; k < N; k++) {
+    CX_COMPLEX sum = 0.0f;
+    for(int n = 0;n < N; n++) {
+      float angle = CX_TAU * k * n / N;
+      sum += in[n] * cexpf(-1.0f * I * angle);
+    }
+    out[k] = sum;
+    if(CX_CABS(out[k]) < CX_EPSILON) {
+      out[k] = 0.0;
+    }
+  }
+}
+
+CX_API void cx_dft_inverse(CX_COMPLEX in[], CX_COMPLEX out[], int N)
+{
+  for(int k = 0; k < N; k++) {
+    CX_FLOAT N_inv = 1.0 / N;
+    CX_COMPLEX sum = 0.0f;
+    for(int n = 0;n < N; n++) {
+      float angle = CX_TAU * k * n / N;
+      sum += in[n] * cexpf(1.0f * I * angle);
+    }
+    out[k] = N_inv * sum;
+    if(CX_CABS(out[k]) < CX_EPSILON) {
+      out[k] = 0.0;
+    }
+  }
+}
+
+
+#endif /* CX_IMPLEMENTATION */
 
 #ifdef __cplusplus
 }
-#endif // __cplusplus
+#endif /* __cplusplus */
 
-#endif // CAYLIX_H
+#endif /* CAYLIX_H */
