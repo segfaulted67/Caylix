@@ -1,0 +1,38 @@
+#+TITLE: Caylix Documentation
+
+
+* API Reference
+** cx_vec2
+   #+begin_src c
+   CX_API CX_API_INLINE struct cx_vec2 *cx_vec2_zero(struct cx_vec2 *u);                                               /* Returns zero vec2 */
+   CX_API CX_API_INLINE struct cx_vec2 *cx_vec2_set(struct cx_vec2 *u, CX_FLOAT x, CX_FLOAT y);                        /* Set vec2 with x, y */
+   CX_API CX_API_INLINE struct cx_vec2 *cx_vec2_set_random(struct cx_vec2 *u);                                         /* Set vec2 with random values */
+   CX_API CX_API_INLINE struct cx_vec2 *cx_vec2_negate(struct cx_vec2 *u);                                             /* Returns the negation of a vec2 */
+   CX_API CX_API_INLINE struct cx_vec2 cx_vec2_add(const struct cx_vec2 *u, const struct cx_vec2 *v);                  /* Returns the addition of two vec2 */
+   CX_API CX_API_INLINE struct cx_vec2 cx_vec2_addf(const struct cx_vec2 *u, const CX_FLOAT fT);                       /* Returns the addition of a vec2 with a scalar eg. cx_vec2 u = <9.0f, 10.0f>, fT = 10, -> <19.0f, 20.0f> */
+   CX_API CX_API_INLINE struct cx_vec2 cx_vec2_subtract(const struct cx_vec2 *u, const struct cx_vec2 *v);             /* Returns the subtraction of two vec2 */
+   CX_API CX_API_INLINE struct cx_vec2 cx_vec2_subtractf(const struct cx_vec2 *u, const CX_FLOAT fT);                  /* Returns the addition of a vec2 with a scalar eg. cx_vec2 u = <9.0f, 10.0f>, fT = 10, -> <19.0f, 20.0f> */
+   CX_API CX_API_INLINE struct cx_vec2 cx_vec2_scalar_multiplyf(const struct cx_vec2 *u, const CX_FLOAT fT);           /* Returns the scalar multiplication of a vec2. eg: u = <1.0f, 3.0f> and f = 3.0f => <3.0f, 9.0f> */
+   CX_API CX_API_INLINE CX_FLOAT cx_vec2_dot_product(const struct cx_vec2 *u, const struct cx_vec2 *v);                /* Returns the dot product b/w two vec2 */
+   CX_API CX_API_INLINE CX_FLOAT cx_vec2_cross_product(const struct cx_vec2 *u, const struct cx_vec2 *v);              /* Returns the cross product b/w two vec2 */
+   CX_API CX_API_INLINE struct cx_vec2 cx_vec2_normalize(const struct cx_vec2 *u);                                     /* Returns the norm of a vec2 */
+   CX_API CX_API_INLINE CX_FLOAT cx_vec2_magnitude(const struct cx_vec2 *u);                                           /* Returns the magnitude of a vec2 */
+   CX_API CX_API_INLINE void cx_vec2_print(const struct cx_vec2 *u);                                                   /* Print vec2 */
+   #+end_src
+** cx_vec3
+   #+begin_src c
+   CX_API CX_API_INLINE struct cx_vec3 *cx_vec3_zero(struct cx_vec3 *u);                                               /* Returns zero vec3 */
+   CX_API CX_API_INLINE struct cx_vec3 *cx_vec3_set(struct cx_vec3 *u, CX_FLOAT x, CX_FLOAT y, CX_FLOAT z);            /* Set a vec3 with x, y */
+   CX_API CX_API_INLINE struct cx_vec3 *cx_vec3_set_random(struct cx_vec3 *u);                                         /* Set vec3 with random vaules */
+   CX_API CX_API_INLINE struct cx_vec3 *cx_vec3_negate(struct cx_vec3 *u);                                             /* Returns the negation of a vec3 */
+   CX_API CX_API_INLINE struct cx_vec3 cx_vec3_add(const struct cx_vec3 *u, const struct cx_vec3 *v);                  /* Returns the addition of two vec3 */
+   CX_API CX_API_INLINE struct cx_vec3 cx_vec3_addf(const struct cx_vec3 *u, const CX_FLOAT fT);                       /* Returns the addition of a vec3 with a scalar eg. cx_vec3 u = <9.0f, 10.0f, 0.5f>, fT = 10, -> <19.0f, 20.0f, 10.5f> */
+   CX_API CX_API_INLINE struct cx_vec3 cx_vec3_subtract(const struct cx_vec3 *u, const struct cx_vec3 *v);             /* Returns the subtraction of two vec3 */
+   CX_API CX_API_INLINE struct cx_vec3 cx_vec3_subtractf(const struct cx_vec3 *u, const CX_FLOAT fT);                  /* Returns the subtraction of a vec3 with a scalar eg. cx_vec3 u = <9.0f, 10.0f, 0.5f>, fT = 10, -> <19.0f, 20.0f, 10.5f> */
+   CX_API CX_API_INLINE struct cx_vec3 cx_vec3_scalar_multiplyf(const struct cx_vec3 *u, const CX_FLOAT fT);           /* Returns the scalar multiplication of a vec3. eg: u = <1.0f, 3.0f, 0.5f> and f = 3.0f => <3.0f, 9.0f, 1.5f> */
+   CX_API CX_API_INLINE CX_FLOAT cx_vec3_dot_product(const struct cx_vec3 *u, const struct cx_vec3 *v);                /* Returns the dot product b/w two vec3 */
+   CX_API CX_API_INLINE struct cx_vec3 cx_vec3_cross_product(const struct cx_vec3 *u, const struct cx_vec3 *v);        /* Returns the cross product b/w two vec3 */
+   CX_API CX_API_INLINE struct cx_vec3 cx_vec3_normalize(const struct cx_vec3 *u);                                     /* Returns the norm of a vec3 */
+   CX_API CX_API_INLINE CX_FLOAT cx_vec3_magnitude(const struct cx_vec3 *u);                                           /* Returns the magnitude of a vec3 */
+   CX_API CX_API_INLINE void cx_vec3_print(const struct cx_vec3 *u);                                                   /* Print vec3 */
+   #+end_src

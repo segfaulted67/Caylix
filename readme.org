@@ -6,4 +6,5 @@
   MIT License — free to use, modify, and share.
 * Credit
   - [[https://github.com/dagostinelli/hypatia][hypatia]] A header-only, pure-C math library for 2D/3D graphics
-
+* Documentation
+  - See the full documentation in [[./docs/docs.org][docs]]
