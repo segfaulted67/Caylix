@@ -37,7 +37,16 @@ extern "C" {
 /* typecast CX_FLOAT complex as CX_COMPLEX */
 #ifndef CX_COMPLEX
 #   include <complex.h>
-#   define CX_COMPLEX CX_FLOAT complex
+/* https://learn.microsoft.com/en-us/cpp/c-runtime-library/complex-math-support?view=msvc-170 */
+#   ifdef _MSC_VER
+#     ifdef CX_SINGLE_PRECISION_FLOAT
+#       define CX_COMPLEX _Fcomplex
+#     else
+#       define CX_COMPLEX _Dcomplex
+#   endif
+#   else
+#     define CX_COMPLEX CX_FLOAT complex
+#   endif
 #endif
 
 /* typecast char and const char * as CX_STR and CX_CONST_STR */
@@ -116,17 +125,19 @@ extern "C" {
 #define CX_DA_INIT_CAP 8
 
 /* A macro for absolute value. eg: CX_ABS(69.0) --> 69.0 , CX_ABS(-69.0) -> 69.0 */
-#define CX_ABS(x)  (((x) < 0) ? -(x) : (x))
+#define CX_ABS(x)   _Generic((x), float: fabsf, double: fabs, default: fabs)(x)
 /* A macro for complex absolute values */
 #define CX_CABS(x)  _Generic((x), float: cabsf, double: cabs, default: cabs)(x)
+/* A macro for complex exponentials */
+#define CX_CEXP(x)  _Generic((x), float: cexpf, double: cexp, default: cexp)(x)
 /* A macro for square root*/
 #define CX_SQRT(x)  _Generic((x), float: sqrtf, double: sqrt, default: sqrt)(x)
 /* A macro for sin */
-#define CX_SIN(x)   _Generic((x), float: sinf, double: sin, default: sin)(x)
+#define CX_SIN(x)   _Generic((x), float: sinf,  double: sin,  default: sin)(x)
 /* A macro for cos */
-#define CX_COS(x)   _Generic((x), float: cosf, double: cos, default: cos)(x)
+#define CX_COS(x)   _Generic((x), float: cosf,  double: cos,  default: cos)(x)
 /* A macro for tan */
-#define CX_TAN(x)   _Generic((x), float: tanf, double: tan, default: tan)(x)
+#define CX_TAN(x)   _Generic((x), float: tanf,  double: tan,  default: tan)(x)
 /* A macro for cot */
 #define CX_COT(x)  (1.0 / CX_TAN(x))
 /* A macro for sec */
@@ -144,7 +155,7 @@ extern "C" {
 /* Safely divides x by y; returns INFINITY if y == 0 */
 /* Example: CX_SAFE_DIVIDE(5.0, 0.0); --> inf        */
 /*          CX_SAFE_DIVIDE(5.0, 5.0); --> 1.0        */
-#define CX_SAFE_DIVIDE(x, y)  (((y) == 0) ? (((x) > 0) ? INFINITY : -INFINITY) : (x) / (y))
+#define CX_SAFE_DIVIDE(x, y)  ((CX_ABS((y)) <= CX_EPSILON) ? (((x) > 0) ? INFINITY : -INFINITY) : (x) / (y))
 
 /* typecast inline for different compilers */
 #ifndef CX_API_INLINE
@@ -198,7 +209,7 @@ extern "C" {
 #define CX_CALLOC   calloc
 #define CX_FREE     free
 
-/* Macro returns the length of an array */
+/* Macro returns the length of an array eg. arr[] = { 0, 1, 2 }; CX_ARR_LEN(arr); -> 3 */
 #define CX_ARR_LEN(arr)   (sizeof(arr)/sizeof(arr[0]))
 /* Macro returns the number of arguments. eg: CX_NUM_ARGS(int, 1, 0, 6, 7, 9, 3) -- returns 6 */
 #define CX_NUM_ARGS(type, ...)   sizeof((type []){ __VA_ARGS__ }) / sizeof(type)
@@ -208,8 +219,8 @@ extern "C" {
 #define CX_MAX(x, y)    ((x) > (y) ? (x) : (y))
 
 /* Degree to Radian/Radian to Degree Conversion */
-#define CX_DEG_TO_RAD(x)  ((x) * CX_DEG_PER_RAD)
-#define CX_RAD_TO_DEG(x)  ((x) * CX_RAD_PER_DEG)
+#define CX_DEG_TO_RAD(x)  ((x) * CX_RAD_PER_DEG)
+#define CX_RAD_TO_DEG(x)  ((x) * CX_DEG_PER_RAD)
 
 /* A Macro returns the square of number */
 #define CX_SQ(x)  ((x) * (x))
@@ -235,7 +246,6 @@ static CX_API_INLINE void cx_swap(CX_FLOAT *x, CX_FLOAT *y)
   *y = t;
 }
 
-// #ifdef CX_VECTOR_IMPLEMENT
 /* ------------------------------------------------------------------------------------------------------------ */
 /* forward decleration ---------------------------------------------------------------------------------------- */
 struct cx_vec2;
@@ -336,12 +346,12 @@ CX_API CX_API_INLINE struct cx_vec2 cx_vec2_normalize(const struct cx_vec2 *u); 
 CX_API CX_API_INLINE CX_FLOAT cx_vec2_magnitude(const struct cx_vec2 *u);                                           /* Returns the magnitude of a vec2 */
 CX_API CX_API_INLINE void cx_vec2_print(const struct cx_vec2 *u);                                                   /* Print vec2 */
 
-static struct cx_vec2 _cx_vec2_zero             = { { { 0.0f, 0.0f  } } };
-static struct cx_vec2 _cx_vec2_unit_x           = { { { 1.0f, 0.0f  } } };
-static struct cx_vec2 _cx_vec2_unit_y           = { { { 0.0f, 1.0f  } } };
-static struct cx_vec2 _cx_vec2_unit_x_negative  = { { { -1.0f, 0.0f } } };
-static struct cx_vec2 _cx_vec2_unit_y_negative  = { { { 0.0f, -1.0f } } };
-static struct cx_vec2 _cx_vec2_one              = { { { 1.0f, 1.0f  } } };
+static const struct cx_vec2 _cx_vec2_zero             = { { { 0.0f, 0.0f  } } };
+static const struct cx_vec2 _cx_vec2_unit_x           = { { { 1.0f, 0.0f  } } };
+static const struct cx_vec2 _cx_vec2_unit_y           = { { { 0.0f, 1.0f  } } };
+static const struct cx_vec2 _cx_vec2_unit_x_negative  = { { { -1.0f, 0.0f } } };
+static const struct cx_vec2 _cx_vec2_unit_y_negative  = { { { 0.0f, -1.0f } } };
+static const struct cx_vec2 _cx_vec2_one              = { { { 1.0f, 1.0f  } } };
 
 CX_API const struct cx_vec2 *cx_get_reference_vec2(int id)
 {
@@ -470,14 +480,14 @@ CX_API CX_API_INLINE struct cx_vec3 cx_vec3_normalize(const struct cx_vec3 *u); 
 CX_API CX_API_INLINE CX_FLOAT cx_vec3_magnitude(const struct cx_vec3 *u);                                           /* Returns the magnitude of a vec3 */
 CX_API CX_API_INLINE void cx_vec3_print(const struct cx_vec3 *u);                                                   /* Print vec3 */
 
-static struct cx_vec3 _cx_vec3_zero             = { { { 0.0f, 0.0f, 0.0f  } } };
-static struct cx_vec3 _cx_vec3_unit_x           = { { { 1.0f, 0.0f, 0.0f  } } };
-static struct cx_vec3 _cx_vec3_unit_y           = { { { 0.0f, 1.0f, 0.0f  } } };
-static struct cx_vec3 _cx_vec3_unit_z           = { { { 0.0f, 0.0f, 1.0f  } } };
-static struct cx_vec3 _cx_vec3_unit_x_negative  = { { { -1.0f, 0.0f, 0.0f } } };
-static struct cx_vec3 _cx_vec3_unit_y_negative  = { { { 0.0f, -1.0f, 0.0f } } };
-static struct cx_vec3 _cx_vec3_unit_z_negative  = { { { 0.0f, 0.0f, -1.0f } } };
-static struct cx_vec3 _cx_vec3_one              = { { { 1.0f, 1.0f, 1.0f  } } };
+static const struct cx_vec3 _cx_vec3_zero             = { { { 0.0f, 0.0f, 0.0f  } } };
+static const struct cx_vec3 _cx_vec3_unit_x           = { { { 1.0f, 0.0f, 0.0f  } } };
+static const struct cx_vec3 _cx_vec3_unit_y           = { { { 0.0f, 1.0f, 0.0f  } } };
+static const struct cx_vec3 _cx_vec3_unit_z           = { { { 0.0f, 0.0f, 1.0f  } } };
+static const struct cx_vec3 _cx_vec3_unit_x_negative  = { { { -1.0f, 0.0f, 0.0f } } };
+static const struct cx_vec3 _cx_vec3_unit_y_negative  = { { { 0.0f, -1.0f, 0.0f } } };
+static const struct cx_vec3 _cx_vec3_unit_z_negative  = { { { 0.0f, 0.0f, -1.0f } } };
+static const struct cx_vec3 _cx_vec3_one              = { { { 1.0f, 1.0f, 1.0f  } } };
 
 CX_API const struct cx_vec3 *cx_get_reference_vec3(int id)
 {
@@ -601,13 +611,15 @@ CX_API CX_API_INLINE void cx_vec3_print(const struct cx_vec3 *u)
 }
 
 
+/* ------------------------------------------------------------------------------------------------------------ */
+/* dft -------------------------------------------------------------------------------------------------------- */
 CX_API void cx_dft(CX_COMPLEX in[], CX_COMPLEX out[], int N)
 {
   for(int k = 0; k < N; k++) {
     CX_COMPLEX sum = 0.0f;
     for(int n = 0;n < N; n++) {
       float angle = CX_TAU * k * n / N;
-      sum += in[n] * cexpf(-1.0f * I * angle);
+      sum += in[n] * CX_CEXP(-1.0f * I * angle);
     }
     out[k] = sum;
     if(CX_CABS(out[k]) < CX_EPSILON) {
@@ -623,7 +635,7 @@ CX_API void cx_dft_inverse(CX_COMPLEX in[], CX_COMPLEX out[], int N)
     CX_COMPLEX sum = 0.0f;
     for(int n = 0;n < N; n++) {
       float angle = CX_TAU * k * n / N;
-      sum += in[n] * cexpf(1.0f * I * angle);
+      sum += in[n] * CX_CEXP(1.0f * I * angle);
     }
     out[k] = N_inv * sum;
     if(CX_CABS(out[k]) < CX_EPSILON) {
@@ -632,6 +644,40 @@ CX_API void cx_dft_inverse(CX_COMPLEX in[], CX_COMPLEX out[], int N)
   }
 }
 
+
+// - source: https://cp-algorithms.com/algebra/fft.html
+static void cx_fft(CX_COMPLEX in[], CX_COMPLEX out[], int N)
+{
+  if(N == 1) {
+    out[0] = in[0];
+    return;
+  }
+
+  CX_COMPLEX in_a0[N/2];
+  CX_COMPLEX in_a1[N/2];
+
+  CX_COMPLEX out_a0[N/2];
+  CX_COMPLEX out_a1[N/2];
+
+  for(int k = 0; k < N / 2; k++) {
+    in_a0[k] = in[2 * k];
+    in_a1[k] = in[2 * k + 1];
+  }
+
+  cx_fft(in_a0, out_a0, N/2);
+  cx_fft(in_a1, out_a1, N/2);
+
+  CX_FLOAT angle = -2.0 * CX_PI / N;
+  CX_COMPLEX w = 1.0 + I * 0.0;
+  // CX_COMPLEX wn = cos(angle) + I * sin(angle);
+  CX_COMPLEX wn = CX_CEXP(I * angle);
+
+  for(int n = 0; n < N / 2; n++) {
+    out[n] = out_a0[n] + w * out_a1[n];
+    out[n + N/2] = out_a0[n] - w * out_a1[n];
+    w *= wn;
+  }
+}
 
 #endif /* CX_IMPLEMENTATION */
 
