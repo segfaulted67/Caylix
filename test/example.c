@@ -7,37 +7,36 @@
 #include <stdlib.h>
 #include <time.h>
 
-#define N (1 << 3)
-int main() {
-  CX_COMPLEX x[N] = {
-        1.0 + 2.0*I,
-        -1.0 + 1.0*I,
-        0.5 - 0.5*I,
-        2.0 - 1.0*I,
-        1.0,
-        2.0,
-        0.0,
-        0.0,
-    };
+#define N (1 << 9)
 
+int main()
+{
+  srand(time(NULL));
+
+
+  CX_COMPLEX x[N] = { 0 };
+
+  int k1 = 500, k2 = 1700;
+  for (int n = 0; n < N; n++) {
+    x[n] = cos(2.0 * CX_PI * k1 * n / N)
+         + 0.5 * cos(2.0 * CX_PI * k2 * n / N);
+  }
 
   CX_COMPLEX X[N] = { 0 };
-  CX_COMPLEX fft_X[N] = { 0 };
-  CX_COMPLEX x_inv[N] = { 0 };
-  cx_dft(x, X, N);
-  cx_fft(x, fft_X, N);
-  cx_dft_inverse(X, x_inv, N);
+
+  // cx_dft(x, X, N);
+  cx_fft(x, X, N);
 
   printf("Original Array:\n");
   for (int k = 0; k < N; k++) {
-    printf("x[%d] = %.6f + %.6fi\n", k, creal(x[k]), cimag(x[k]));
+    CX_INFO("x[%d] = %.6f + %.6fi", k, creal(x[k]), cimag(x[k]));
   }
 
   CX_PRINTLN();
 
   printf("FFT Results:\n");
   for (int k = 0; k < N; k++) {
-    printf("X[%d] = %.6f + %.6fi\n", k, creal(fft_X[k]), cimag(fft_X[k]));
+    CX_INFO("X[%d] = %.6f + %.6fi", k, creal(X[k]), cimag(X[k]));
   }
 
   CX_PRINTLN();

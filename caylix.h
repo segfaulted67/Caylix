@@ -612,7 +612,14 @@ CX_API CX_API_INLINE void cx_vec3_print(const struct cx_vec3 *u)
 
 
 /* ------------------------------------------------------------------------------------------------------------ */
-/* dft -------------------------------------------------------------------------------------------------------- */
+/* dft and fft ------------------------------------------------------------------------------------------------ */
+/* DFT implementation                                                                                           */
+/* eg. say we have a set of signals x[t] then                                                                   */
+/* DFT and FFT transforms that signal from time domain x[n] to frequency domain X[k]                            */
+/* X[k] = \sum_{k = 0}^{N - 1} x[k] * \exp{\frac{-2πni}{N}}                                                    */
+/* Here: N    = total numbers of samples                                                                        */
+/*       x[n] = input signal in time domain                                                                     */
+/*       X[k] = output signal in frequency domain                                                               */
 CX_API void cx_dft(CX_COMPLEX in[], CX_COMPLEX out[], int N)
 {
   for(int k = 0; k < N; k++) {
@@ -645,8 +652,9 @@ CX_API void cx_dft_inverse(CX_COMPLEX in[], CX_COMPLEX out[], int N)
 }
 
 
-// - source: https://cp-algorithms.com/algebra/fft.html
-static void cx_fft(CX_COMPLEX in[], CX_COMPLEX out[], int N)
+/* FFT implementation                                                                                             */
+/* source: https://cp-algorithms.com/algebra/fft.html                                                             */
+CX_API void cx_fft(CX_COMPLEX in[], CX_COMPLEX out[], int N)
 {
   if(N == 1) {
     out[0] = in[0];
@@ -678,6 +686,7 @@ static void cx_fft(CX_COMPLEX in[], CX_COMPLEX out[], int N)
     w *= wn;
   }
 }
+
 
 #endif /* CX_IMPLEMENTATION */
 
