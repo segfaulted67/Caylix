@@ -5,21 +5,17 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <time.h>
 
-#define N (1 << 9)
+#define N (1 << 6)
 
 int main()
 {
-  srand(time(NULL));
-
-
   CX_COMPLEX x[N] = { 0 };
 
   int k1 = 500, k2 = 1700;
   for (int n = 0; n < N; n++) {
     x[n] = cos(2.0 * CX_PI * k1 * n / N)
-         + 0.5 * cos(2.0 * CX_PI * k2 * n / N);
+           + 0.5 * cos(2.0 * CX_PI * k2 * n / N);
   }
 
   CX_COMPLEX X[N] = { 0 };
@@ -27,7 +23,7 @@ int main()
   // cx_dft(x, X, N);
   cx_fft(x, X, N);
 
-  printf("Original Array:\n");
+  printf("Original Samples:\n");
   for (int k = 0; k < N; k++) {
     CX_INFO("x[%d] = %.6f + %.6fi", k, creal(x[k]), cimag(x[k]));
   }
@@ -41,5 +37,5 @@ int main()
 
   CX_PRINTLN();
 
-  return 0;
+	return 0;
 }

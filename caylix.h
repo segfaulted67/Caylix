@@ -321,6 +321,25 @@ CX_API const struct cx_vec4 *cx_get_reference_vec4(int id);
 #define CX_VEC3_ONE               cx_get_reference_vec3(CX_REF_VEC3_ONE)
 
 /* ------------------------------------------------------------------------------------------------------------ */
+/* reference_vec4---------------------------------------------------------------------------------------------- */
+/* {0, 0, 0, 0}                                                                                                    */
+#define CX_VEC4_ZERO              cx_get_reference_vec4(CX_REF_VEC4_ZERO)
+/* {1, 0, 0, 0}                                                                                                    */
+#define CX_VEC4_UNIT_X            cx_get_reference_vec4(CX_REF_VEC4_UNIT_X)
+/* {0, 1, 0, 0}                                                                                                    */
+#define CX_VEC4_UNIT_Y            cx_get_reference_vec4(CX_REF_VEC4_UNIT_Y)
+/* {0, 0, 1, 0}                                                                                                    */
+#define CX_VEC4_UNIT_Z            cx_get_reference_vec4(CX_REF_VEC4_UNIT_Z)
+/* {-1, 0, 0, 0}                                                                                                   */
+#define CX_VEC4_UNIT_X_NEGATIVE   cx_get_reference_vec4(CX_REF_VEC4_UNIT_X_NEGATIVE)
+/* {0, -1, 0, 0}                                                                                                   */
+#define CX_VEC4_UNIT_Y_NEGATIVE   cx_get_reference_vec4(CX_REF_VEC4_UNIT_Y_NEGATIVE)
+/* {0, 0, -1, 0}                                                                                                   */
+#define CX_VEC4_UNIT_Z_NEGATIVE   cx_get_reference_vec4(CX_REF_VEC4_UNIT_Z_NEGATIVE)
+/* {1, 1, 1, 1}                                                                                                    */
+#define CX_VEC4_ONE               cx_get_reference_vec4(CX_REF_VEC4_ONE)
+
+/* ------------------------------------------------------------------------------------------------------------ */
 /* cx_vec2 functions ------------------------------------------------------------------------------------------ */
 struct cx_vec2 {
   union {
@@ -616,7 +635,7 @@ CX_API CX_API_INLINE void cx_vec3_print(const struct cx_vec3 *u)
 /* DFT implementation                                                                                           */
 /* eg. say we have a set of signals x[t] then                                                                   */
 /* DFT and FFT transforms that signal from time domain x[n] to frequency domain X[k]                            */
-/* X[k] = \sum_{k = 0}^{N - 1} x[k] * \exp{\frac{-2πni}{N}}                                                    */
+/* X[k] = \sum_{k = 0}^{N - 1} x[k] * \exp{\frac{-2πni}{N}}                                                     */
 /* Here: N    = total numbers of samples                                                                        */
 /*       x[n] = input signal in time domain                                                                     */
 /*       X[k] = output signal in frequency domain                                                               */
@@ -652,10 +671,11 @@ CX_API void cx_dft_inverse(CX_COMPLEX in[], CX_COMPLEX out[], int N)
 }
 
 
-/* FFT implementation                                                                                             */
+/* FFT implementation ------------------------------------------------------------------------------------------- */
 /* source: https://cp-algorithms.com/algebra/fft.html                                                             */
 CX_API void cx_fft(CX_COMPLEX in[], CX_COMPLEX out[], int N)
 {
+  CX_ASSERT((N & (N-1)) == 0 && "This fft(Cooley-Tukey FFT) only works for power of two");
   if(N == 1) {
     out[0] = in[0];
     return;
@@ -687,6 +707,33 @@ CX_API void cx_fft(CX_COMPLEX in[], CX_COMPLEX out[], int N)
   }
 }
 
+/* ------------------------------------------------------------------------------------------------------------ */
+/* ODE Numerical solver --------------------------------------------------------------------------------------- */
+/*  */
+CX_API CX_API_INLINE CX_FLOAT cx_explicit_euler(CX_FLOAT (* f)(CX_FLOAT, CX_FLOAT), CX_FLOAT x, CX_FLOAT y, CX_FLOAT h)
+{
+  CX_FLOAT fxy = f(x, y);
+  return (y + h * fxy);
+}
+
+CX_API CX_API_INLINE CX_FLOAT cx_rk2(CX_FLOAT (* f)(CX_FLOAT, CX_FLOAT), CX_FLOAT x, CX_FLOAT y, CX_FLOAT h)
+{
+  CX_FLOAT y1 = f(x, y);
+  CX_FLOAT y_star = y + h * y1;
+  CX_FLOAT y2 = f(x + h, y_star);
+
+  return y + (0.5 * h * (y1 + y2));
+}
+
+CX_API CX_API_INLINE CX_FLOAT cx_rk4(CX_FLOAT (* f)(CX_FLOAT, CX_FLOAT), CX_FLOAT x, CX_FLOAT y, CX_FLOAT h)
+{
+  CX_FLOAT k1 = f(x, y);
+  CX_FLOAT k2 = f(x + h/2, y + ((h/2) * k1));
+  CX_FLOAT k3 = f(x + h/2, y + ((h/2) * k2));
+  CX_FLOAT k4 = f(x + h, y + h * k3);
+
+  return y + (h / 6) * (k1 + 2 * k2 + 2 * k3 + k4);
+}
 
 #endif /* CX_IMPLEMENTATION */
 
