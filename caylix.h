@@ -43,9 +43,9 @@ extern "C" {
 #       define CX_COMPLEX _Fcomplex
 #     else
 #       define CX_COMPLEX _Dcomplex
-#   endif
+#     endif
 #   else
-#     define CX_COMPLEX CX_FLOAT complex
+#     define CX_COMPLEX _Complex CX_FLOAT
 #   endif
 #endif
 
@@ -125,19 +125,19 @@ extern "C" {
 #define CX_DA_INIT_CAP 8
 
 /* A macro for absolute value. eg: CX_ABS(69.0) --> 69.0 , CX_ABS(-69.0) -> 69.0 */
-#define CX_ABS(x)   _Generic((x), float: fabsf, double: fabs, default: fabs)(x)
+#define CX_ABS(x)   ((CX_FLOAT)fabs(x))
 /* A macro for complex absolute values */
-#define CX_CABS(x)  _Generic((x), float: cabsf, double: cabs, default: cabs)(x)
+#define CX_CABS(x)  cabs(x)
 /* A macro for complex exponentials */
-#define CX_CEXP(x)  _Generic((x), float: cexpf, double: cexp, default: cexp)(x)
+#define CX_CEXP(x)  cexp(x)
 /* A macro for square root*/
-#define CX_SQRT(x)  _Generic((x), float: sqrtf, double: sqrt, default: sqrt)(x)
+#define CX_SQRT(x)  ((CX_FLOAT)sqrt(x))
 /* A macro for sin */
-#define CX_SIN(x)   _Generic((x), float: sinf,  double: sin,  default: sin)(x)
+#define CX_SIN(x)  ((CX_FLOAT)sin(x))
 /* A macro for cos */
-#define CX_COS(x)   _Generic((x), float: cosf,  double: cos,  default: cos)(x)
+#define CX_COS(x)  ((CX_FLOAT)cos(x))
 /* A macro for tan */
-#define CX_TAN(x)   _Generic((x), float: tanf,  double: tan,  default: tan)(x)
+#define CX_TAN(x)  ((CX_FLOAT)(tan(x))
 /* A macro for cot */
 #define CX_COT(x)  (1.0 / CX_TAN(x))
 /* A macro for sec */
@@ -146,11 +146,11 @@ extern "C" {
 #define CX_CSC(x)  (1.0 / CX_SIN(x))
 
 /* A macro for sin inverse or asin */
-#define CX_ASIN(x)  _Generic((x), float: asinf, double: asin, default: asin)(x)
+#define CX_ASIN(x)  ((CX_FLOAT)asin(x))
 /* A macro for cos inverse or acos */
-#define CX_ACOS(x)  _Generic((x), float: acosf, double: acos, default: acos)(x)
+#define CX_ACOS(x)  ((CX_FLOAT)acos(x))
 /* A macro for tan inverse or atan */
-#define CX_ATAN(x)  _Generic((x), float: atanf, double: atan, default: atan)(x)
+#define CX_ATAN(x)  ((CX_FLOAT)atan(x))
 
 /* Safely divides x by y; returns INFINITY if y == 0 */
 /* Example: CX_SAFE_DIVIDE(5.0, 0.0); --> inf        */
@@ -212,7 +212,7 @@ extern "C" {
 /* Macro returns the length of an array eg. arr[] = { 0, 1, 2 }; CX_ARR_LEN(arr); -> 3 */
 #define CX_ARR_LEN(arr)   (sizeof(arr)/sizeof(arr[0]))
 /* Macro returns the number of arguments. eg: CX_NUM_ARGS(int, 1, 0, 6, 7, 9, 3) -- returns 6 */
-#define CX_NUM_ARGS(type, ...)   sizeof((type []){ __VA_ARGS__ }) / sizeof(type)
+#define CX_NUM_ARGS(type, ...)   (sizeof((type []){ __VA_ARGS__ }) / sizeof(type))
 
 /* Macros returns the min/max between two numbers */
 #define CX_MIN(x, y)    ((x) < (y) ? (x) : (y))
@@ -708,8 +708,8 @@ CX_API void cx_fft(CX_COMPLEX in[], CX_COMPLEX out[], int N)
 }
 
 /* ------------------------------------------------------------------------------------------------------------ */
-/* ODE Numerical solver --------------------------------------------------------------------------------------- */
-/*  */
+/* Numerical ODE solver --------------------------------------------------------------------------------------- */
+/* implicit euler  */
 CX_API CX_API_INLINE CX_FLOAT cx_explicit_euler(CX_FLOAT (* f)(CX_FLOAT, CX_FLOAT), CX_FLOAT x, CX_FLOAT y, CX_FLOAT h)
 {
   CX_FLOAT fxy = f(x, y);

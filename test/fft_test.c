@@ -6,7 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define N (1 << 6)
+#define N (1 << 2)
 
 int main()
 {
@@ -37,5 +37,5 @@ int main()
 
   CX_PRINTLN();
 
-	return 0;
+  return 0;
 }
