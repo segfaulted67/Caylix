@@ -1,5 +1,5 @@
 #+TITLE: Caylix
-#+DESCRIPTION: Lightweight C library for math
+#+DESCRIPTION: Lightweight C library for maths
 * Introduction
   Caylix is a header-only C library designed to provide mathematical utilities in a simple, portable way
 * Documentation
@@ -8,3 +8,4 @@
   MIT License — free to use, modify, and share.
 * Credit
   - [[https://github.com/dagostinelli/hypatia][hypatia]] A header-only, pure-C math library for 2D/3D graphics
+  - [[https://github.com/datenwolf/linmath.h][linmath.h]] A small library for linear math as required for computer graphics
