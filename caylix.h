@@ -16,7 +16,6 @@ extern "C" {
 
 #include <time.h>
 
-#ifdef CX_IMPLEMENTATION
 
 #define CX_VERSION  "1.0.1"
 
@@ -188,33 +187,55 @@ extern "C" {
 			(arr).size--;																		\
 	} while (0)
 
-/* A macro for absolute value. eg: CX_ABS(69.0) --> 69.0 , CX_ABS(-69.0) -> 69.0 */
-#define CX_ABS(x)   ((cx_float)fabs(x))
+#ifdef CX_DOUBLE_PRECISION_FLOAT
 /* A macro for complex absolute values */
-#define CX_CABS(x)  cabs(x)
+#	define CX_CABS(x)  cabs(x)
 /* A macro for complex exponentials */
-#define CX_CEXP(x)  cexp(x)
+#	define CX_CEXP(x)  cexp(x)
 /* A macro for square root*/
-#define CX_SQRT(x)  ((cx_float)sqrt(x))
+#	define CX_SQRT(x)  (sqrt(x))
 /* A macro for sin */
-#define CX_SIN(x)  ((cx_float)sin(x))
+#	define CX_SIN(x)  (sin(x))
 /* A macro for cos */
-#define CX_COS(x)  ((cx_float)cos(x))
+#	define CX_COS(x)  (cos(x))
 /* A macro for tan */
-#define CX_TAN(x)  ((cx_float)tan(x))
+#	define CX_TAN(x)  (tan(x))
+/* A macro for sin inverse or asin */
+#define CX_ASIN(x)  (asin(x))
+/* A macro for cos inverse or acos */
+#define CX_ACOS(x)  (acos(x))
+/* A macro for tan inverse or atan */
+#define CX_ATAN(x)  (atan(x))
+#else
+/* A macro for complex absolute values */
+#	define CX_CABS(x)  cabsf(x)
+/* A macro for complex exponentials */
+#	define CX_CEXP(x)  cexpf(x)
+/* A macro for square root*/
+#	define CX_SQRT(x)  (sqrtf(x))
+/* A macro for sin */
+#	define CX_SIN(x)  (sinf(x))
+/* A macro for cos */
+#	define CX_COS(x)  (cosf(x))
+/* A macro for tan */
+#	define CX_TAN(x)  (tanf(x))
+/* A macro for sin inverse or asin */
+#define CX_ASIN(x)  (asinf(x))
+/* A macro for cos inverse or acos */
+#define CX_ACOS(x)  (acosf(x))
+/* A macro for tan inverse or atan */
+#define CX_ATAN(x)  (atanf(x))
+#endif
+
 /* A macro for cot */
 #define CX_COT(x)  (1.0 / CX_TAN(x))
 /* A macro for sec */
 #define CX_SEC(x)  (1.0 / CX_COS(x))
 /* A macro for cosec */
 #define CX_CSC(x)  (1.0 / CX_SIN(x))
+/* A macro for absolute value. eg: CX_ABS(69.0) --> 69.0 , CX_ABS(-69.0) -> 69.0 */
+#define CX_ABS(x)   (((x) < 0) ? (-(x)) : (x))
 
-/* A macro for sin inverse or asin */
-#define CX_ASIN(x)  ((cx_float)asin(x))
-/* A macro for cos inverse or acos */
-#define CX_ACOS(x)  ((cx_float)acos(x))
-/* A macro for tan inverse or atan */
-#define CX_ATAN(x)  ((cx_float)atan(x))
 
 /* Safely divides x by y; returns INFINITY if y == 0 */
 /* Example: CX_SAFE_DIVIDE(5.0, 0.0); --> inf        */
@@ -327,6 +348,8 @@ static CX_API_INLINE cx_float cx_clamp(cx_float value, cx_float min, cx_float ma
 
 	return value;
 }
+
+#ifdef CX_IMPLEMENTATION
 
 /* ------------------------------------------------------------------------------------------------------------ */
 /* forward decleration ---------------------------------------------------------------------------------------- */
@@ -445,7 +468,7 @@ CX_API CX_API_INLINE bool cx_vec2_equals(const cx_vec2 u, const cx_vec2 v);
 
 CX_API CX_API_INLINE cx_float cx_vec2_dot(const cx_vec2 u, const cx_vec2 v);                   /* Returns the dot product b/w two vec2 */
 CX_API CX_API_INLINE cx_float cx_vec2_cross(const cx_vec2 u, const cx_vec2 v);                 /* Returns the cross product b/w two vec2 */
-CX_API CX_API_INLINE cx_vec2 cx_vec2_normalize(const cx_vec2 u);                               /* Returns the norm of a vec2 */
+CX_API CX_API_INLINE cx_vec2 cx_vec2_normalize(const cx_vec2 u);                               /* Returns the unit vector of a vec2 */
 CX_API CX_API_INLINE cx_float cx_vec2_mag(const cx_vec2 u);                                    /* Returns the magnitude of a vec2 */
 
 CX_API CX_API_INLINE cx_vec2 cx_vec2_rotate(const cx_vec2 u, cx_float angle);                  /* Returns the vector rotated with given angle */
@@ -457,7 +480,7 @@ CX_API CX_API_INLINE cx_vec2 cx_vec2_reflect(const cx_vec2 u, const cx_vec2 n);
 CX_API CX_API_INLINE void cx_vec2_print(const cx_vec2 u);                                      /* Print vec2 */
 
 /* cx_vec3 ---------------------------------------------------------------------------------------------------- */
-CX_API CX_API_INLINE cx_vec3 cx_vec3_set(cx_float x, cx_float y, cx_float z);                  /* Set a vec3 with x, y */
+CX_API CX_API_INLINE cx_vec3 cx_vec3_set(cx_float x, cx_float y, cx_float z);                  /* Set a vec3 with x, y, z */
 CX_API CX_API_INLINE cx_vec3 cx_vec3_zero();                                                   /* Returns zero vec3 */
 CX_API CX_API_INLINE cx_vec3 cx_vec3_random();                                                 /* Set vec3 with random vaules */
 
@@ -469,10 +492,10 @@ CX_API CX_API_INLINE cx_vec3 cx_vec3_subf(const cx_vec3 u, const cx_float fT);  
 CX_API CX_API_INLINE cx_vec3 cx_vec3_mulf(const cx_vec3 u, const cx_float fT);                 /* Returns the scalar multiplication of a vec3. eg: u = <1.0f, 3.0f, 0.5f> and f = 3.0f => <3.0f, 9.0f, 1.5f> */
 CX_API CX_API_INLINE cx_vec3 cx_vec3_divf(const cx_vec3 u, const cx_float fT);                 /* Returns the scalar division of a vec3, eg: u = <0.0f, 10.0f, 50.0f> and f = 5.0f => <0.0f, 2.0f, 10.0f> */
 
-CX_API CX_API_INLINE cx_float cx_vec3_dot(const cx_vec3 u, const cx_vec3 v);                   /* Returns the dot product b/w two vec3 */
-CX_API CX_API_INLINE cx_vec3 cx_vec3_cross(const cx_vec3 u, const cx_vec3 v);                  /* Returns the cross product b/w two vec3 */
+CX_API CX_API_INLINE cx_float cx_vec3_dot(const cx_vec3 u, const cx_vec3 v);                   /* Returns the dot product/scalar product b/w two vec3 */
+CX_API CX_API_INLINE cx_vec3 cx_vec3_cross(const cx_vec3 u, const cx_vec3 v);                  /* Returns the cross product/vector product b/w two vec3 */
 
-CX_API CX_API_INLINE cx_vec3 cx_vec3_normalize(const cx_vec3 u);                               /* Returns the norm of a vec3 */
+CX_API CX_API_INLINE cx_vec3 cx_vec3_normalize(const cx_vec3 u);                               /* Returns the unit vector of a vec3 */
 CX_API CX_API_INLINE cx_float cx_vec3_mag(const cx_vec3 u);                                    /* Returns the magnitude of a vec3 */
 CX_API CX_API_INLINE cx_float cx_vec3_mag_sq(const cx_vec3 u);                                 /* Returns the square of the magnitude of a vec3 */
 CX_API CX_API_INLINE cx_float cx_vec3_angle(const cx_vec3 u, const cx_vec3 v);
@@ -480,24 +503,25 @@ CX_API CX_API_INLINE cx_float cx_vec3_angle(const cx_vec3 u, const cx_vec3 v);
 CX_API CX_API_INLINE void cx_vec3_print(const cx_vec3 u);                                      /* Print vec3 */
 
 /* cx_vec4 ---------------------------------------------------------------------------------------------------- */
-CX_API CX_API_INLINE cx_vec4 cx_vec4_set(cx_float x, cx_float y, cx_float z, cx_float w);
-CX_API CX_API_INLINE cx_vec4 cx_vec4_zero();
-CX_API CX_API_INLINE cx_vec4 cx_vec4_random();
-CX_API CX_API_INLINE cx_vec4 cx_vec4_negate(cx_vec4 u);
-CX_API CX_API_INLINE cx_vec4 cx_vec4_add(const cx_vec4 u, const cx_vec4 v);
-CX_API CX_API_INLINE cx_vec4 cx_vec4_addf(const cx_vec4 u, cx_float fT);
-CX_API CX_API_INLINE cx_vec4 cx_vec4_sub(const cx_vec4 u, const cx_vec4 v);
-CX_API CX_API_INLINE cx_vec4 cx_vec4_subf(const cx_vec4 u, cx_float fT);
-CX_API CX_API_INLINE cx_vec4 cx_vec4_mulf(const cx_vec4 u, cx_float fT);
-CX_API CX_API_INLINE cx_vec4 cx_vec4_divf(const cx_vec4 u, const cx_float fT);
+CX_API CX_API_INLINE cx_vec4 cx_vec4_set(cx_float x, cx_float y, cx_float z, cx_float w);      /* Set vec4 with x, y, z, w */
+CX_API CX_API_INLINE cx_vec4 cx_vec4_zero();                                                   /* Set vec4 with 0 */
+CX_API CX_API_INLINE cx_vec4 cx_vec4_random();                                                 /* Set vec4 with random values */
 
-CX_API CX_API_INLINE cx_float cx_vec4_dot(const cx_vec4 u, const cx_vec4 v);
-CX_API CX_API_INLINE cx_vec4 cx_vec4_cross(const cx_vec4 u, const cx_vec4 v);
+CX_API CX_API_INLINE cx_vec4 cx_vec4_negate(cx_vec4 u);                                        /* Returns the negation of a vec4 */
+CX_API CX_API_INLINE cx_vec4 cx_vec4_add(const cx_vec4 u, const cx_vec4 v);                    /* Returns the addition of two vec4 */
+CX_API CX_API_INLINE cx_vec4 cx_vec4_addf(const cx_vec4 u, cx_float fT);                       /* Returns the addition of a vec4 with a scalar */
+CX_API CX_API_INLINE cx_vec4 cx_vec4_sub(const cx_vec4 u, const cx_vec4 v);                    /* Returns the subtraction of two vec4 */
+CX_API CX_API_INLINE cx_vec4 cx_vec4_subf(const cx_vec4 u, cx_float fT);                       /* Returns the subtraction of a vec4 with a scalar */
+CX_API CX_API_INLINE cx_vec4 cx_vec4_mulf(const cx_vec4 u, cx_float fT);                       /* Returns the multiplication of a vec4 with a scalar */
+CX_API CX_API_INLINE cx_vec4 cx_vec4_divf(const cx_vec4 u, const cx_float fT);                 /* Returns the division of a vec4 with a scalar */
 
-CX_API CX_API_INLINE cx_vec4 cx_vec4_normalize(const cx_vec4 u);
-CX_API CX_API_INLINE cx_float cx_vec4_mag(const cx_vec4 u);
+CX_API CX_API_INLINE cx_float cx_vec4_dot(const cx_vec4 u, const cx_vec4 v);                   /* Returns the dot product/scalar product of a vec4 */
+CX_API CX_API_INLINE cx_vec4 cx_vec4_cross(const cx_vec4 u, const cx_vec4 v);                  /* Returns the cross product/vector product of vec4 with w = 1.0 */
 
-CX_API CX_API_INLINE void cx_vec4_print(const cx_vec4 u);
+CX_API CX_API_INLINE cx_vec4 cx_vec4_normalize(const cx_vec4 u);                               /* Returns the unit vector of a vec4 */
+CX_API CX_API_INLINE cx_float cx_vec4_mag(const cx_vec4 u);                                    /* Returns the magnitude of a vec4 */
+
+CX_API CX_API_INLINE void cx_vec4_print(const cx_vec4 u);                                      /* Print vec4 */
 
 
 
@@ -737,7 +761,7 @@ CX_API CX_API_INLINE cx_vec3 cx_vec3_set(cx_float x, cx_float y, cx_float z)
 
 CX_API CX_API_INLINE cx_vec3 cx_vec3_zero()
 {
-	return cx_vec3_set(0.0f, 0.0f, 0.0f);
+	return cx_vec3_set(0.0, 0.0, 0.0);
 }
 
 CX_API CX_API_INLINE cx_vec3 cx_vec3_random()
@@ -1047,7 +1071,7 @@ CX_API CX_API_INLINE cx_vec2 cx_mat2_rotate(const cx_vec2 u, const cx_float angl
 CX_API CX_API_INLINE cx_float cx_mat2_angle(const cx_mat2 a);
 
 CX_API CX_API_INLINE bool cx_mat2_equals(const cx_mat2 a, const cx_mat2 b);
-CX_API CX_API_INLINE bool cx_mat2_is_orhtogonal(const cx_mat2 a);
+CX_API CX_API_INLINE bool cx_mat2_is_orthogonal(const cx_mat2 a);
 
 CX_API CX_API_INLINE void cx_mat2_print(const cx_mat2 a);
 
@@ -1171,7 +1195,7 @@ CX_API CX_API_INLINE cx_float cx_mat2_trace(const cx_mat2 a)
 CX_API CX_API_INLINE cx_vec2 cx_mat2_rotate(const cx_vec2 u, const cx_float angle)
 {
 	const cx_float _sin = CX_SIN(angle);
-	const cx_float _cos = CX_SIN(angle);
+	const cx_float _cos = CX_COS(angle);
 
 	cx_mat2 rotation_matrix = cx_mat2_set(_cos, -_sin,
 										  _sin,  _cos);
@@ -1190,7 +1214,7 @@ CX_API CX_API_INLINE bool cx_mat2_equals(const cx_mat2 a, const cx_mat2 b)
 			CX_FLOAT_EQUALS(a.m10, b.m10) && CX_FLOAT_EQUALS(a.m11, b.m11));
 }
 
-CX_API CX_API_INLINE bool cx_mat2_is_orhtogonal(const cx_mat2 a)
+CX_API CX_API_INLINE bool cx_mat2_is_orthogonal(const cx_mat2 a)
 {
 	const cx_mat2 trans = cx_mat2_transpose(a);
 	const cx_mat2 inv = cx_mat2_inverse(a);
@@ -1218,14 +1242,322 @@ struct cx_mat3 {
 	};
 };
 
+CX_API CX_API_INLINE cx_mat3 cx_mat3_set(const cx_float m00, const cx_float m01, const cx_float m02,
+                                         const cx_float m10, const cx_float m11, const cx_float m12,
+                                         const cx_float m20, const cx_float m21, const cx_float m22);
+CX_API CX_API_INLINE cx_mat3 cx_mat3_zero();
+CX_API CX_API_INLINE cx_mat3 cx_mat3_identity();
+CX_API CX_API_INLINE cx_mat3 cx_mat3_translation(const cx_float tx, const cx_float ty);
+CX_API CX_API_INLINE cx_mat3 cx_mat3_scaling(const cx_float sx, const cx_float sy, const cx_float sz);
+CX_API CX_API_INLINE cx_mat3 cx_mat3_shear_x(const cx_float shx);
+CX_API CX_API_INLINE cx_mat3 cx_mat3_shear_y(const cx_float shx);
+CX_API CX_API_INLINE cx_mat3 cx_mat3_shear(const cx_float shx, const cx_float shy);
+CX_API CX_API_INLINE cx_mat3 cx_mat3_reflection_x();
+CX_API CX_API_INLINE cx_mat3 cx_mat3_reflection_y();
+CX_API CX_API_INLINE cx_mat3 cx_mat3_reflection_z();
+
+
+CX_API CX_API_INLINE cx_mat3 cx_mat3_add(const cx_mat3 a, const cx_mat3 b);
+CX_API CX_API_INLINE cx_mat3 cx_mat3_sub(const cx_mat3 a, const cx_mat3 b);
+CX_API CX_API_INLINE cx_mat3 cx_mat3_mulf(const cx_mat3 a, const cx_float fT);
+CX_API CX_API_INLINE cx_mat3 cx_mat3_divf(const cx_mat3 a, const cx_float fT);
+CX_API CX_API_INLINE cx_mat3 cx_mat3_mul(const cx_mat3 a, const cx_mat3 b);
+CX_API CX_API_INLINE cx_vec3 cx_mat3_vec3_mul(const cx_mat3 a, const cx_vec3 u);
+
+CX_API CX_API_INLINE cx_float cx_mat3_det(const cx_mat3 a);
+CX_API CX_API_INLINE cx_mat3 cx_mat3_transpose(const cx_mat3 a);
+CX_API CX_API_INLINE cx_mat3 cx_mat3_cofactor_matrix(const cx_mat3 a);
+CX_API CX_API_INLINE cx_mat3 cx_mat3_inverse(const cx_mat3 a);
+CX_API CX_API_INLINE cx_float cx_mat3_trace(const cx_mat3 a);
+
+CX_API CX_API_INLINE cx_mat3 cx_mat3_rotation_z(const cx_float angle);
+CX_API CX_API_INLINE cx_mat3 cx_mat3_rotation_y(const cx_float angle);
+CX_API CX_API_INLINE cx_mat3 cx_mat3_rotation_x(const cx_float angle);
+CX_API CX_API_INLINE cx_mat3 cx_mat3_rotation_euler_zyx(const cx_float psi, const cx_float theta, const cx_float phi);
+CX_API CX_API_INLINE cx_mat3 cx_mat3_rotation_euler_xyz(const cx_float phi, const cx_float theta, const cx_float psi);
+CX_API CX_API_INLINE cx_vec3 cx_mat3_rotate_z(const cx_vec3 u, const cx_float angle);
+CX_API CX_API_INLINE cx_vec3 cx_mat3_rotate_y(const cx_vec3 u, const cx_float angle);
+CX_API CX_API_INLINE cx_vec3 cx_mat3_rotate_x(const cx_vec3 u, const cx_float angle);
+CX_API CX_API_INLINE cx_vec3 cx_mat3_rotate(const cx_vec3 u, const cx_float psi, const cx_float theta, const cx_float phi);
+
 CX_API CX_API_INLINE void cx_mat3_print(const cx_mat3 a);
 
 
+CX_API CX_API_INLINE cx_mat3 cx_mat3_set(const cx_float m00, const cx_float m01, const cx_float m02,
+                                         const cx_float m10, const cx_float m11, const cx_float m12,
+                                         const cx_float m20, const cx_float m21, const cx_float m22)
+{
+	return (cx_mat3) {
+		m00, m01, m02,
+		m10, m11, m12,
+		m20, m21, m22
+	};
+}
+
+CX_API CX_API_INLINE cx_mat3 cx_mat3_zero()
+{
+	return cx_mat3_set(0.0, 0.0, 0.0,
+				       0.0, 0.0, 0.0,
+					   0.0, 0.0, 0.0);
+}
+
+CX_API CX_API_INLINE cx_mat3 cx_mat3_identity()
+{
+	return cx_mat3_set(1.0, 0.0, 0.0,
+                       0.0, 1.0, 0.0,
+				       0.0, 0.0, 1.0);
+}
+
+CX_API CX_API_INLINE cx_mat3 cx_mat3_translation(const cx_float tx, const cx_float ty)
+{
+	return cx_mat3_set(1.0, 0.0, tx,
+                       0.0, 1.0, ty,
+				       0.0, 0.0, 1.0);
+}
+
+CX_API CX_API_INLINE cx_mat3 cx_mat3_scaling(const cx_float sx, const cx_float sy, const cx_float sz)
+{
+	return cx_mat3_set(sx,  0.0, 0.0,
+					   0.0, sy,  0.0,
+					   0.0, 0.0, sz);
+}
+
+CX_API CX_API_INLINE cx_mat3 cx_mat3_shear_x(const cx_float shx)
+{
+	return cx_mat3_set(1.0, shx, 0.0,
+					   0.0, 1.0, 0.0,
+					   0.0, 0.0, 1.0);
+}
+
+CX_API CX_API_INLINE cx_mat3 cx_mat3_shear_y(const cx_float shy)
+{
+	return cx_mat3_set(1.0, 0.0, 0.0,
+					   shy, 1.0, 0.0,
+					   0.0, 0.0, 1.0);
+}
+
+CX_API CX_API_INLINE cx_mat3 cx_mat3_shear(const cx_float shx, const cx_float shy)
+{
+	return cx_mat3_set(1.0, shx, 0.0,
+					   shy, 1.0, 0.0,
+					   0.0, 0.0, 1.0);
+}
+
+CX_API CX_API_INLINE cx_mat3 cx_mat3_reflection_x()
+{
+	return cx_mat3_set(-1.0, 0.0, 0.0,
+                       0.0, 1.0, 0.0,
+				       0.0, 0.0, 1.0);
+}
+
+CX_API CX_API_INLINE cx_mat3 cx_mat3_reflection_y()
+{
+	return cx_mat3_set(1.0, 0.0, 0.0,
+                       0.0, -1.0, 0.0,
+				       0.0, 0.0, 1.0);
+}
+
+CX_API CX_API_INLINE cx_mat3 cx_mat3_reflection_z()
+{
+	return cx_mat3_set(1.0, 0.0, 0.0,
+                       0.0, 1.0, 0.0,
+				       0.0, 0.0, -1.0);
+}
+
+CX_API CX_API_INLINE cx_mat3 cx_mat3_add(const cx_mat3 a, const cx_mat3 b)
+{
+	return (cx_mat3) {
+		a.m00 + b.m00, a.m01 + b.m01, a.m02 + b.m02,
+		a.m10 + b.m10, a.m11 + b.m11, a.m12 + b.m12,
+		a.m20 + b.m20, a.m21 + b.m21, a.m22 + b.m22
+	};
+}
+
+CX_API CX_API_INLINE cx_mat3 cx_mat3_sub(const cx_mat3 a, const cx_mat3 b)
+{
+	return (cx_mat3) {
+		a.m00 - b.m00, a.m01 - b.m01, a.m02 - b.m02,
+		a.m10 - b.m10, a.m11 - b.m11, a.m12 - b.m12,
+		a.m20 - b.m20, a.m21 - b.m21, a.m22 - b.m22
+	};
+}
+
+CX_API CX_API_INLINE cx_mat3 cx_mat3_mulf(const cx_mat3 a, const cx_float fT)
+{
+	return (cx_mat3) {
+		a.m00 * fT, a.m01 * fT, a.m02 * fT,
+		a.m10 * fT, a.m11 * fT, a.m12 * fT,
+		a.m20 * fT, a.m21 * fT, a.m22 * fT
+	};
+}
+
+CX_API CX_API_INLINE cx_mat3 cx_mat3_divf(const cx_mat3 a, const cx_float fT)
+{
+	if (fT == 0) return cx_mat3_zero();
+	return (cx_mat3) {
+		a.m00 / fT, a.m01 / fT, a.m02 / fT,
+		a.m10 / fT, a.m11 / fT, a.m12 / fT,
+		a.m20 / fT, a.m21 / fT, a.m22 / fT
+	};
+}
+
+CX_API CX_API_INLINE cx_mat3 cx_mat3_mul(const cx_mat3 a, const cx_mat3 b)
+{
+	return (cx_mat3) {
+		a.m00 * b.m00 + a.m01 * b.m10 + a.m02 * b.m20, a.m00 * b.m01 + a.m01 * b.m11 + a.m02 * b.m21, a.m00 * b.m02 + a.m01 * b.m12 + a.m02 * b.m22,
+		a.m10 * b.m00 + a.m11 * b.m10 + a.m12 * b.m20, a.m10 * b.m01 + a.m11 * b.m11 + a.m12 * b.m21, a.m10 * b.m02 + a.m11 * b.m12 + a.m12 * b.m22,
+		a.m20 * b.m00 + a.m21 * b.m10 + a.m22 * b.m20, a.m20 * b.m01 + a.m21 * b.m11 + a.m22 * b.m21, a.m20 * b.m02 + a.m21 * b.m12 + a.m22 * b.m22
+	};
+}
+
+CX_API CX_API_INLINE cx_vec3 cx_mat3_vec3_mul(const cx_mat3 a, const cx_vec3 u)
+{
+	return (cx_vec3) {
+		.x = a.m00 * u.x + a.m01 * u.y + a.m02 * u.z,
+		.y = a.m10 * u.x + a.m11 * u.y + a.m12 * u.z,
+		.z = a.m20 * u.x + a.m21 * u.y + a.m22 * u.z
+	};
+}
+
+CX_API CX_API_INLINE cx_float cx_mat3_det(const cx_mat3 a)
+{
+	return a.m00 * (a.m11 * a.m22 - a.m21 * a.m12) - a.m01 * (a.m10 * a.m22 - a.m12 * a.m20) + a.m02 * (a.m10 * a.m21 - a.m11 * a.m20);
+}
+
+CX_API CX_API_INLINE cx_mat3 cx_mat3_cofactor_matrix(const cx_mat3 a)
+{
+	const cx_float C00 = a.m11 * a.m22 - a.m12 * a.m21;
+	const cx_float C01 = a.m10 * a.m22 - a.m12 * a.m20;
+	const cx_float C02 = a.m10 * a.m21 - a.m11 * a.m20;
+
+	const cx_float C10 = a.m01 * a.m22 - a.m02 * a.m21;
+	const cx_float C11 = a.m00 * a.m22 - a.m02 * a.m20;
+	const cx_float C12 = a.m00 * a.m21 - a.m01 * a.m20;
+
+	const cx_float C20 = a.m01 * a.m12 - a.m02 * a.m11;
+	const cx_float C21 = a.m00 * a.m12 - a.m02 * a.m10;
+	const cx_float C22 = a.m00 * a.m11 - a.m01 * a.m10;
+
+	return cx_mat3_set(C00,  -C01, C02,
+					   -C10, C11,  -C12,
+					   C20,  -C21, C22);
+}
+
+CX_API CX_API_INLINE cx_mat3 cx_mat3_inverse(const cx_mat3 a)
+{
+	cx_float det = cx_mat3_det(a);
+	if (det == 0.0)	return cx_mat3_zero();
+
+	const cx_mat3 cofactor = cx_mat3_transpose(cx_mat3_cofactor_matrix(a));
+
+	return cx_mat3_divf(cofactor, det);
+}
+
+CX_API CX_API_INLINE cx_mat3 cx_mat3_transpose(const cx_mat3 a)
+{
+	return (cx_mat3) {
+		a.m00, a.m10, a.m20,
+		a.m01, a.m11, a.m21,
+		a.m02, a.m12, a.m22
+	};
+}
+
+CX_API CX_API_INLINE cx_float cx_mat3_trace(const cx_mat3 a)
+{
+	return a.m00 + a.m11 + a.m22;
+}
+
+CX_API CX_API_INLINE cx_mat3 cx_mat3_rotation_z(const cx_float angle)
+{
+	const cx_float _sin = CX_SIN(angle);
+	const cx_float _cos = CX_COS(angle);
+
+	return (cx_mat3) {
+		_cos, -_sin, 0.0,
+		_sin,  _cos, 0.0,
+		0.0,   0.0,  1.0
+	};
+}
+
+CX_API CX_API_INLINE cx_mat3 cx_mat3_rotation_y(const cx_float angle)
+{
+	const cx_float _sin = CX_SIN(angle);
+	const cx_float _cos = CX_COS(angle);
+
+	return (cx_mat3) {
+		_cos,  0.0, _sin,
+		0.0,   1.0,  0.0,
+		-_sin, 0.0, _cos
+	};
+}
+
+CX_API CX_API_INLINE cx_mat3 cx_mat3_rotation_x(const cx_float angle)
+{
+	const cx_float _sin = CX_SIN(angle);
+	const cx_float _cos = CX_COS(angle);
+
+	return (cx_mat3) {
+		1.0,   0.0,   0.0,
+		0.0, _cos,  -_sin,
+		0.0, _sin,   _cos
+	};
+}
+
+CX_API CX_API_INLINE cx_mat3 cx_mat3_rotation_euler_zyx(const cx_float psi, const cx_float theta, const cx_float phi)
+{
+	const cx_mat3 rot_z = cx_mat3_rotation_z(psi);
+	const cx_mat3 rot_y = cx_mat3_rotation_y(theta);
+	const cx_mat3 rot_x = cx_mat3_rotation_x(phi);
+
+	return cx_mat3_mul(cx_mat3_mul(rot_z, rot_y), rot_x);
+}
+
+CX_API CX_API_INLINE cx_mat3 cx_mat3_rotation_euler_xyz(const cx_float phi, const cx_float theta, const cx_float psi)
+{
+	const cx_mat3 rot_x = cx_mat3_rotation_x(phi);
+	const cx_mat3 rot_y = cx_mat3_rotation_y(theta);
+	const cx_mat3 rot_z = cx_mat3_rotation_z(psi);
+
+	return cx_mat3_mul(cx_mat3_mul(rot_x, rot_y), rot_z);
+}
+
+CX_API CX_API_INLINE cx_vec3 cx_mat3_rotate_z(const cx_vec3 u, const cx_float angle)
+{
+	const cx_mat3 rot_z = cx_mat3_rotation_z(angle);
+
+	return cx_mat3_vec3_mul(rot_z, u);
+}
+
+CX_API CX_API_INLINE cx_vec3 cx_mat3_rotate_y(const cx_vec3 u, const cx_float angle)
+{
+	const cx_mat3 rot_y = cx_mat3_rotation_y(angle);
+
+	return cx_mat3_vec3_mul(rot_y, u);
+}
+
+CX_API CX_API_INLINE cx_vec3 cx_mat3_rotate_x(const cx_vec3 u, const cx_float angle)
+{
+	const cx_mat3 rot_x = cx_mat3_rotation_x(angle);
+
+	return cx_mat3_vec3_mul(rot_x, u);
+}
+
+CX_API CX_API_INLINE cx_vec3 cx_mat3_rotate(const cx_vec3 u, const cx_float psi, const cx_float theta, const cx_float phi)
+{
+	const cx_mat3 rot_z = cx_mat3_rotation_z(psi);
+	const cx_mat3 rot_y = cx_mat3_rotation_y(theta);
+	const cx_mat3 rot_x = cx_mat3_rotation_x(phi);
+
+	const cx_mat3 rot = cx_mat3_mul(cx_mat3_mul(rot_z, rot_y), rot_x);
+
+	return cx_mat3_vec3_mul(rot, u);
+}
+
 CX_API CX_API_INLINE void cx_mat3_print(const cx_mat3 a)
 {
-	printf("mat3: ⎡%-6.2f  %6.2f %6.2f⎤\n"
-		   "      ⎢%-6.2f  %6.2f %6.2f⎥\n"
-		   "      ⎣%-6.2f  %6.2f %6.2f⎦\n",
+	printf("mat3: ⎡%-6.2f  %6.2f  %6.2f⎤\n"
+		   "      ⎢%-6.2f  %6.2f  %6.2f⎥\n"
+		   "      ⎣%-6.2f  %6.2f  %6.2f⎦\n",
 		   a.m00, a.m01, a.m02,
 		   a.m10, a.m11, a.m12,
 		   a.m20, a.m21, a.m22);
@@ -1236,10 +1568,10 @@ CX_API CX_API_INLINE void cx_mat3_print(const cx_mat3 a)
 /* DFT implementation                                                                                           */
 /* eg. say we have a set of signals x[t] then                                                                   */
 /* DFT and FFT transforms that signal from time domain x[n] to frequency domain X[k]                            */
-/* X[k] = \sum_{k = 0}^{N - 1} x[k] * \exp{\frac{-2πni}{N}}                                                     */
+/* X[k] = \sum_{n = 0}^{N - 1} x[n] * \exp{\frac{-2πkni}{N}}                                                     */
 /* Here: N    = total numbers of samples                                                                        */
-/*       x[n] = input signal in time domain                                                                     */
-/*       X[k] = output signal in frequency domain                                                               */
+/*       x[N] = input signal in time domain                                                                     */
+/*       X[N] = output signal in frequency domain                                                               */
 
 CX_API void cx_dft(cx_complex in[], cx_complex out[], int N)
 {
